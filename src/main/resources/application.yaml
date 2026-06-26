@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: spring-boot-boilerplate
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+  flyway:
+    schemas:
+      - auth
+    create-schemas: true
+  session:
+    timeout: 30m
+
+server:
+  port: 8181
+  servlet:
+    session:
+      cookie:
+        name: SESSION
+        http-only: true
+        secure: false # true for production
+        same-site: LAX
