@@ -1,6 +1,8 @@
 package io.github.thesmoothrere.config;
 
+import io.github.thesmoothrere.filter.CsrfCookieFilter;
 import io.github.thesmoothrere.service.AppUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +20,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.*;
+
+import java.util.function.Supplier;
 
 @Configuration
 @EnableWebSecurity
@@ -46,10 +52,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        CsrfTokenRequestAttributeHandler attributeHandler = new CsrfTokenRequestAttributeHandler();
+        attributeHandler.setCsrfRequestAttributeName(null);
+
         http
-                .csrf(
-                        AbstractHttpConfigurer::disable
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(attributeHandler)
                 )
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authenticationProvider(
                         authenticationProvider()
                 )
@@ -75,6 +86,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::migrateSession)
                         .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true)
                 );
 
         return http.build();
