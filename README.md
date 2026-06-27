@@ -1,0 +1,118 @@
+# Spring Boot Boilerplate
+
+A minimal Spring Boot starter project that demonstrates a typical security configuration, JWT‑free authentication using session cookies, and basic user management (register & login). The codebase includes:
+
+- **SecurityConfig** – Configures Spring Security, CSRF protection via a cookie, and session handling.
+- **AuthController** – Public endpoints for checking service health, user registration and login.
+- **AuthService** – Business logic for persisting users, assigning the default `USER` role and performing authentication.
+- **Entities** – `User`, `Role`, and supporting enums/constants.
+- **Repositories** – JPA repositories for `User` and `Role`.
+- **CsrfCookieFilter** – A placeholder filter that reads the CSRF token (can be extended to expose it to the client).
+
+## Prerequisites
+
+- Java 25 (toolchain configured in `build.gradle.kts`).
+- Docker (optional) for running a PostgreSQL database and Redis if you want to try the full stack.
+- Gradle (the wrapper is not included; you can use the system Gradle installation).
+
+## Building the Project
+
+```bash
+# Clean and build the JAR
+./gradlew clean build
+```
+
+The resulting artifact will be located at `build/libs/spring-boot-boilerplate-0.0.1-SNAPSHOT.jar`.
+
+## Running the Application
+
+You need a PostgreSQL instance and a Redis server (used for session storage). Example using Docker:
+
+```bash
+# PostgreSQL
+docker run -d --name pg -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=app -p 5432:5432 postgres:latest
+
+# Redis
+docker run -d --name redis -p 6379:6379 redis:latest
+```
+
+Then start the app:
+
+```bash
+java -jar build/libs/spring-boot-boilerplate-0.0.1-SNAPSHOT.jar
+```
+
+The API will be available at `http://localhost:8080`.
+
+## API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`  | `/api/v1/auth/status` | Health‑check endpoint – returns `"OK"`. |
+| `POST` | `/api/v1/auth/register` | Register a new user. Expects a JSON body with `username` and `password`. Returns the created user's `id` and `username`. |
+| `POST` | `/api/v1/auth/login` | Authenticate a user. Expects a JSON body with `username` and `password`. Returns the authenticated user's `id`, `username`, and granted roles. A session cookie is set by Spring Security. |
+
+### Request / Response Models
+
+- **RegisterRequest** – `{ "username": "string", "password": "string" }`
+- **LoginRequest** – Same shape as `RegisterRequest`.
+- **AuthResponse** – `{ "id": "long", "username": "string", "roles": ["ROLE_USER"] }`
+
+## Security Details
+
+- **CSRF Protection** – Enabled via `CookieCsrfTokenRepository` with `HttpOnly` set to `false` so the token can be read by client‑side code if needed. The `CsrfCookieFilter` runs after the default `BasicAuthenticationFilter` and currently just accesses the token (it can be extended to add the token to a response header or body).
+- **Session Management** – Uses Spring Session backed by Redis (`spring-boot-starter-session-data-redis`). Sessions are created on demand (`IF_REQUIRED`), limited to one concurrent session per user, and are invalidated on logout.
+- **Password Encoding** – BCrypt (`BCryptPasswordEncoder`).
+- **Roles** – A default `USER` role is assigned on registration. Role lookup is performed via `RoleRepository`.
+
+## Project Structure
+
+```
+src/main/java/io/github/thesmoothrere/
+│   SpringBootBoilerplateApplication.java   # Application entry point
+│
+├─ config/
+│   └─ SecurityConfig.java                  # Spring Security configuration
+├─ controller/
+│   └─ AuthController.java                  # Public auth endpoints
+├─ service/
+│   ├─ AuthService.java                     # Auth business logic
+│   └─ AppUserDetailsService.java          # (not shown) loads users for Spring Security
+├─ filter/
+│   └─ CsrfCookieFilter.java               # Simple CSRF token filter
+├─ entity/
+│   ├─ User.java                            # JPA entity
+│   ├─ Role.java                            # JPA entity
+│   ├─ RoleConstants.java                   # Role name constants
+│   └─ UserStatus.java                      # Enum for user status
+├─ repository/
+│   ├─ UserRepository.java                 # JPA repository for User
+│   └─ RoleRepository.java                 # JPA repository for Role
+├─ model/request/
+│   ├─ RegisterRequest.java
+│   └─ LoginRequest.java
+├─ model/response/
+│   ├─ AuthResponse.java
+│   └─ ApiResponse.java (generic wrapper)
+└─ advice/
+    ├─ RestExceptionAdvice.java
+    └─ RestResponseAdvice.java
+```
+
+## Testing
+
+The project includes a basic Spring context load test. Add more unit/integration tests as needed:
+
+```bash
+./gradlew test
+```
+
+## Extending the Boilerplate
+
+- Add JWT support by replacing the session‑based authentication.
+- Implement role‑based authorization on additional endpoints.
+- Extend `CsrfCookieFilter` to expose the CSRF token in a response header for SPA clients.
+
+---
+
+*Generated by OpenAI's OpenCode assistant.*
