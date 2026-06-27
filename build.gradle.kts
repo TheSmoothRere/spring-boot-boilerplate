@@ -2,6 +2,8 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.sonarqube") version "7.3.1.8318"
+    jacoco
 }
 
 group = "io.github.thesmoothrere"
@@ -44,4 +46,23 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = false
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "TheSmoothRere_spring-boot-boilerplate")
+        property("sonar.host.url", "https://sonarcloud.io")
+        System.getenv("SONARQUBE_TOKEN")?.let { property("sonar.token", it) }
+
+        val jacocoReportPath = layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
+        property("sonar.coverage.jacoco.xmlReportPaths", jacocoReportPath)
+    }
 }
