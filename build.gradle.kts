@@ -61,6 +61,7 @@ sonar {
         property("sonar.projectKey", "TheSmoothRere_spring-boot-boilerplate")
         property("sonar.host.url", "https://sonarcloud.io")
         System.getenv("SONARQUBE_TOKEN")?.let { property("sonar.token", it) }
+        property("sonar.organization", "thesmoothrere")
 
         val jacocoReportPath = layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
         property("sonar.coverage.jacoco.xmlReportPaths", jacocoReportPath)
