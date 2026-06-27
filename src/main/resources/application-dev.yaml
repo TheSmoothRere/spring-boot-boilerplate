@@ -1,0 +1,14 @@
+# ============================================================
+# Development profile overrides
+# Activate with: --spring.profiles.active=dev
+# ============================================================
+
+spring:
+  jpa:
+    show-sql: true
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false # HTTP is fine for local development

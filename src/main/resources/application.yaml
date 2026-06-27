@@ -9,7 +9,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false # enabled in application-dev.yaml
+    open-in-view: false
   data:
     redis:
       url: ${REDIS_URL:redis://localhost:6379}
@@ -27,5 +28,9 @@ server:
       cookie:
         name: SESSION
         http-only: true
-        secure: false # true for production
+        secure: true # set to false in application-dev.yaml for local HTTP
         same-site: LAX
+
+logging:
+  level:
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR

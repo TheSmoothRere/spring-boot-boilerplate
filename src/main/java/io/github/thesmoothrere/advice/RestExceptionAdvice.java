@@ -5,6 +5,8 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,6 +55,19 @@ public class RestExceptionAdvice {
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ApiResponse<Void> handleUsernameNotFoundException(UsernameNotFoundException e) {
-        return ApiResponse.error("USERNAME_NOT_FOUND", e.getMessage());
+        // Use a generic message to prevent username enumeration attacks
+        return ApiResponse.error("UNAUTHORIZED", "Invalid credentials.");
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Void> handleBadCredentialsException(BadCredentialsException e) {
+        return ApiResponse.error("UNAUTHORIZED", "Invalid credentials.");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<Void> handleAccessDeniedException(AccessDeniedException e) {
+        return ApiResponse.error("ACCESS_DENIED", "You do not have permission to access this resource.");
     }
 }
