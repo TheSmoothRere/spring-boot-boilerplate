@@ -28,6 +28,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
+/**
+ * Service for authentication operations: registration and login.
+ * <p>
+ * Handles user registration with default USER role assignment,
+ * and login with session-based authentication using Spring Security.
+ * </p>
+ *
+ * @author TheSmoothRere
+ * @since 0.0.1-SNAPSHOT
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -37,6 +47,14 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
 
+    /**
+     * Registers a new user with the default USER role.
+     *
+     * @param request the registration request containing username and password
+     * @return the authentication response with user ID and username
+     * @throws EntityExistsException if a user with the username already exists
+     * @throws EntityNotFoundException if the default USER role is not configured
+     */
     @Transactional
     public AuthResponse register(@NonNull RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
@@ -61,6 +79,15 @@ public class AuthService {
                 .build();
     }
 
+    /**
+     * Authenticates a user and establishes a session.
+     *
+     * @param request the login request containing username and password
+     * @param servletRequest the HTTP servlet request for session handling
+     * @param servletResponse the HTTP servlet response for session handling
+     * @return the authentication response with user ID, username, and roles
+     * @throws org.springframework.security.authentication.BadCredentialsException if authentication fails
+     */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         Authentication authentication = authenticationManager.authenticate(

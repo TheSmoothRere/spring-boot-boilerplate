@@ -10,11 +10,28 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of Spring Security's {@link UserDetailsService}.
+ * <p>
+ * Loads user details from the database for authentication.
+ * Delegates to {@link UserRepository} to find users by username.
+ * </p>
+ *
+ * @author TheSmoothRere
+ * @since 0.0.1-SNAPSHOT
+ */
 @Service
 @RequiredArgsConstructor
 public class AppUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
+    /**
+     * Loads user details by username for authentication.
+     *
+     * @param username the username to look up
+     * @return the user details for the given username
+     * @throws UsernameNotFoundException if no user is found with the username
+     */
     @Override
     @NullMarked
     @Transactional(readOnly = true)

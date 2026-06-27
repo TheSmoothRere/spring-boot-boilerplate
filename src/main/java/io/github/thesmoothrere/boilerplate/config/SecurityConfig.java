@@ -27,6 +27,27 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
+/**
+ * Spring Security configuration for the application.
+ * <p>
+ * Configures authentication, authorization, CSRF protection, session management,
+ * and exception handling for the REST API.
+ * </p>
+ * <p>
+ * Key features:
+ * </p>
+ * <ul>
+ *   <li>Session-based authentication with Redis-backed sessions</li>
+ *   <li>CSRF protection via cookies (accessible to JavaScript)</li>
+ *   <li>Public access to {@code /api/v1/auth/**} endpoints</li>
+ *   <li>All other endpoints require authentication</li>
+ *   <li>Method-level security enabled via {@code @EnableMethodSecurity}</li>
+ *   <li>Single active session per user (maxSessionsPreventsLogin)</li>
+ * </ul>
+ *
+ * @author TheSmoothRere
+ * @since 0.0.1-SNAPSHOT
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -34,16 +55,32 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 public class SecurityConfig {
     private final AppUserDetailsService userDetailsService;
 
+    /**
+     * Password encoder using BCrypt.
+     *
+     * @return BCryptPasswordEncoder instance
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Authentication manager from Spring Security configuration.
+     *
+     * @param configuration the authentication configuration
+     * @return the authentication manager
+     */
     @Bean
     public AuthenticationManager authenticationManager(@NonNull AuthenticationConfiguration configuration) {
         return configuration.getAuthenticationManager();
     }
 
+    /**
+     * DAO authentication provider using custom user details service.
+     *
+     * @return configured DaoAuthenticationProvider
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
@@ -52,13 +89,25 @@ public class SecurityConfig {
         return authenticationProvider;
     }
 
+    /**
+     * Security context repository using HTTP session.
+     *
+     * @return HttpSessionSecurityContextRepository instance
+     */
     @Bean
     public SecurityContextRepository securityContextRepository() {
         return new HttpSessionSecurityContextRepository();
     }
 
+    /**
+     * Configures the security filter chain.
+     *
+     * @param http the HttpSecurity builder
+     * @return the configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
-    public SecurityFilterChain securityFilterChain(@NonNull HttpSecurity http) {
+    public SecurityFilterChain securityFilterChain(@NonNull HttpSecurity http) throws Exception {
         CsrfTokenRequestAttributeHandler attributeHandler = new CsrfTokenRequestAttributeHandler();
         attributeHandler.setCsrfRequestAttributeName(null);
 

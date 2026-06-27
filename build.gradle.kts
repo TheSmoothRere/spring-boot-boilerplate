@@ -11,6 +11,9 @@ version = "0.0.1-SNAPSHOT"
 description = "spring-boot-boilerplate"
 
 java {
+    withJavadocJar()
+    withSourcesJar()
+
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
