@@ -21,7 +21,7 @@ public class SpringBootBoilerplateApplication {
      *
      * @param args command line arguments
      */
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(SpringBootBoilerplateApplication.class, args);
     }
 

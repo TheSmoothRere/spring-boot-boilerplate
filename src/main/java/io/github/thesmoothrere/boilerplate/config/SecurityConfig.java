@@ -104,10 +104,9 @@ public class SecurityConfig {
      *
      * @param http the HttpSecurity builder
      * @return the configured SecurityFilterChain
-     * @throws Exception if configuration fails
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(@NonNull HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(@NonNull HttpSecurity http) {
         CsrfTokenRequestAttributeHandler attributeHandler = new CsrfTokenRequestAttributeHandler();
         attributeHandler.setCsrfRequestAttributeName(null);
 
